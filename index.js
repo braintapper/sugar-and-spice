@@ -1,0 +1,233 @@
+var Sugar;
+
+Sugar = require("sugar");
+
+require('sugar-inflections');
+
+require('sugar-language');
+
+// Array
+Sugar.Array.defineInstance({
+  toName: function(array) {
+    return array.join(" ").compact();
+  },
+  toFamilyName: function(array) {
+    var lastName;
+    lastName = array.pop() + ",";
+    array.splice(0, 0, lastName);
+    return array.join(" ").compact();
+  }
+});
+
+Sugar.Array.defineInstanceWithArguments({
+  pluck: function(array, args) {
+    return array.map(function(item) {
+      return Object.select(item, args);
+    });
+  }
+});
+
+// Number
+Sugar.Number.defineInstance({
+  msToSeconds: function(num) {
+    return num * 1000;
+  },
+  msToMinutes: function(num) {
+    return num.msToSeconds() / 60;
+  },
+  msToHours: function(num) {
+    return num.msToMinutes() / 60;
+  },
+  msToDays: function(num) {
+    return num.toHours() / 24;
+  },
+  sToMilliseconds: function(num) {
+    return num * 1000;
+  },
+  mToMilliseconds: function(num) {
+    return num.sToMilliseconds * 60;
+  },
+  hToMilliseconds: function(num) {
+    return num.mToMilliseconds * 60;
+  }
+});
+
+Sugar.Number.defineInstanceWithArguments({
+  isBetween: function(num, args) {
+    if (args.length === 2) {
+      return (num >= args.min()) && (num <= args.max());
+    } else {
+      throw "2 numeric arguments are required";
+    }
+  }
+});
+
+// Date
+Sugar.Date.defineInstance({
+  isBusinessDay: function(date) {
+    return date.getWeekday().isBetween(1, 5);
+  },
+  getIsoWeek: function(date) {
+    var week1;
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    // January 4 is always in week 1.
+    week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+  },
+  getIsoWeekYear: function(date) {
+    date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
+    return date.getFullYear();
+  },
+  getOrdinalWeek: function(date) {
+    var elapsed, start;
+    start = date.clone().beginningOfYear().beginningOfDay();
+    elapsed = date.daysSince(start);
+    return (elapsed / 7).floor();
+  },
+  getOrdinalWeekNumber: function(date) {
+    return date.getOrdinalWeek() + 1;
+  },
+  getWeekDayNumber: function(date) {
+    return date.getWeekday() + 1;
+  },
+  getMonthNumber: function(date) {
+    return date.getMonth() + 1;
+  },
+  getQuarterNumber: function(date) {
+    switch (parseInt(date.format("%m"))) {
+      case 1:
+      case 2:
+      case 3:
+        return 1;
+      case 4:
+      case 5:
+      case 6:
+        return 2;
+      case 7:
+      case 8:
+      case 9:
+        return 3;
+      case 10:
+      case 11:
+      case 12:
+        return 4;
+    }
+  },
+  toDateId: function(date) {
+    return parseInt(date.format("%Y%m%d"));
+  },
+  toMonthId: function(date) {
+    return parseInt(date.format("%Y%m"));
+  },
+  toQuarterId: function(date) {
+    return parseInt(`${date.format("%Y%m")}${date.getQuarterNumber()}`);
+  },
+  posted: function(date) {}
+});
+
+// relative date with a few more rules for posting dates
+Sugar.Date.alias('toDateId', 'toDateSid');
+
+Sugar.Date.defineInstanceWithArguments({
+  diffDays: function(date, args) {
+    var end, start;
+    // arg 1: second date
+    start = date.clone().beginningOfDay();
+    end = args.first().clone().beginningOfDay();
+    return end.daysSince(start);
+  },
+  diffWeeks: function(date, args) {
+    var end, start;
+    // arg 1: second date
+    start = date.clone().beginningOfDay();
+    end = args.first().clone().beginningOfDay();
+    return end.weeksSince(start);
+  },
+  diffMonths: function(date, args) {
+    var end, start;
+    // arg 1: second date
+    start = date.clone().beginningOfDay();
+    end = args.first().clone().beginningOfDay();
+    return end.monthsSince(start);
+  },
+  diffQuarters: function(date, args) {
+    console.log("to be implemented");
+    return 0;
+  },
+  diffYears: function(date, args) {
+    var end, start;
+    // arg 1: second date
+    start = date.clone().beginningOfDay();
+    end = args.first().clone().beginningOfDay();
+    return end.yearsSince(start);
+  },
+  dbDate: function(date) {
+    // db friendly date
+    return date.format("%Y-%m-%d");
+  },
+  isSameHourAs: function(date, args) {
+    console.log("to be implemented");
+    return true;
+  },
+  isSameDayAs: function(date, args) {
+    return date.toDateId === args[0].toDateId;
+  },
+  isSameWeekAs: function(date, args) {
+    return true;
+  },
+  isSameMonthAs: function(date, args) {
+    return date.toMonthId === args[0].toMonthId;
+  },
+  isSameQuarterAs: function(date, args) {
+    return date.toQuarterId === args[0].toDQuarterId;
+  },
+  isSameYearAs: function(date, args) {
+    return date.getYear() === args[0].getYear();
+  },
+  comparedTo: function(date, args) {
+    // return a string compared to arg[0]
+    // can be used for class names for styling
+    if (date.isSameDayAs(args.first())) {
+      return "on";
+    } else {
+      if (date.toDateId() < args.first().toDateId()) {
+        return "before";
+      } else {
+        return "after";
+      }
+    }
+  }
+});
+
+// String
+
+// Custom Pluralizations
+Sugar.String.addPlural("is", "are");
+
+Sugar.Date.defineInstance({
+  validateNumber: function(string) {
+    // is a valid number
+    return true;
+  },
+  validateInteger: function(string) {
+    // is an integer
+    return true;
+  },
+  validateDate: function(string) {
+    // is a valid date
+    return true;
+  },
+  validatePresent: function(string) {}
+});
+
+// not blank
+Sugar.Object.defineInstance({
+  toJSON: function(obj) {
+    return JSON.stringify(obj, null, 2);
+  }
+});
+
+module.exports = Sugar;
