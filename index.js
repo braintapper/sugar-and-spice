@@ -213,6 +213,9 @@ Sugar.Date.defineInstanceWithArguments({
   },
   toWeekCalendar: function(date, args) {
     var calendarEnd, calendarStart, count, currentWeek, days, runningDate;
+    // todo: add additional info to the calendar
+    // * selected date
+    // * in selected dates' month
     days = [];
     calendarStart = date.clone().beginningOfWeek();
     calendarEnd = date.clone().endOfWeek();
@@ -233,6 +236,9 @@ Sugar.Date.defineInstanceWithArguments({
     // because the most common usage will be in a standard calendar
     // this returns an array of weeks containing day objects
     // todo: this can be refactored using to WeekCalendar
+    // todo: add additional info to the calendar
+    // * selected date
+    // * in selected dates' month
     weeks = [];
     calendarStart = date.clone().beginningOfMonth().beginningOfWeek();
     calendarEnd = date.clone().endOfMonth().endOfWeek();
