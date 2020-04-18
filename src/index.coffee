@@ -88,7 +88,18 @@ Sugar.Date.defineInstance
   toQuarterId: (date)->
     parseInt "#{date.format("%Y%m")}#{date.getQuarterNumber()}"
   posted: (date)->
-    # relative date with a few more rules for posting dates
+    # relative date with a few more rules for posting dates\
+  toObject: (date)->
+    date: date
+    year: date.getYear()
+    month: date.getMonthNumber()
+    monthName: date.format("%B")
+    monthAbbreviation: date.format("%b")
+    day: date.getDate()
+    dayOfWeek: date.getDay() + 1
+    weekday: date.format("%A")
+    weekdayAbbreviation: date.format("%a")
+
 
 
 Sugar.Date.defineInstanceWithArguments
@@ -141,8 +152,45 @@ Sugar.Date.defineInstanceWithArguments
         return "before"
       else
         return "after"
+  toWeekCalendar: (date, args)->
+
+    days = []
+    calendarStart = date.clone().beginningOfWeek()
+    calendarEnd = date.clone().endOfWeek()
+    runningDate = calendarStart.clone()
+    currentWeek = []
+    count = 0
+    while runningDate.isBetween(calendarStart, calendarEnd)
+      days.push runningDate.clone().toObject()
+      runningDate.addDays(1)
+    return days
+
+  toMonthCalendar: (date, args)->
+    # generate data for a month view
+    # calendars always start on sun and end on sat
+    # this will produce dates before and after the date's month where applicable
+    # because the most common usage will be in a standard calendar
+    # this returns an array of weeks containing day objects
+    # todo: this can be refactored using to WeekCalendar
+
+    weeks = []
+    calendarStart = date.clone().beginningOfMonth().beginningOfWeek()
+    calendarEnd = date.clone().endOfMonth().endOfWeek()
 
 
+    runningDate = calendarStart.clone()
+    currentWeek = []
+    count = 0
+    while runningDate.isBetween(calendarStart, calendarEnd)
+      currentWeek.push runningDate.clone().toObject()
+      runningDate.addDays(1)
+      count++
+      if count == 7
+        weeks.push currentWeek
+        currentWeek = []
+        count = 0
+
+    return weeks
 
 # String
 

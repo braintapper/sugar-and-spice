@@ -125,10 +125,23 @@ Sugar.Date.defineInstance({
   toQuarterId: function(date) {
     return parseInt(`${date.format("%Y%m")}${date.getQuarterNumber()}`);
   },
-  posted: function(date) {}
+  posted: function(date) {},
+  // relative date with a few more rules for posting dates\
+  toObject: function(date) {
+    return {
+      date: date,
+      year: date.getYear(),
+      month: date.getMonthNumber(),
+      monthName: date.format("%B"),
+      monthAbbreviation: date.format("%b"),
+      day: date.getDate(),
+      dayOfWeek: date.getDay() + 1,
+      weekday: date.format("%A"),
+      weekdayAbbreviation: date.format("%a")
+    };
+  }
 });
 
-// relative date with a few more rules for posting dates
 Sugar.Date.defineInstanceWithArguments({
   diffDays: function(date, args) {
     var end, start;
@@ -197,6 +210,46 @@ Sugar.Date.defineInstanceWithArguments({
         return "after";
       }
     }
+  },
+  toWeekCalendar: function(date, args) {
+    var calendarEnd, calendarStart, count, currentWeek, days, runningDate;
+    days = [];
+    calendarStart = date.clone().beginningOfWeek();
+    calendarEnd = date.clone().endOfWeek();
+    runningDate = calendarStart.clone();
+    currentWeek = [];
+    count = 0;
+    while (runningDate.isBetween(calendarStart, calendarEnd)) {
+      days.push(runningDate.clone().toObject());
+      runningDate.addDays(1);
+    }
+    return days;
+  },
+  toMonthCalendar: function(date, args) {
+    var calendarEnd, calendarStart, count, currentWeek, runningDate, weeks;
+    // generate data for a month view
+    // calendars always start on sun and end on sat
+    // this will produce dates before and after the date's month where applicable
+    // because the most common usage will be in a standard calendar
+    // this returns an array of weeks containing day objects
+    // todo: this can be refactored using to WeekCalendar
+    weeks = [];
+    calendarStart = date.clone().beginningOfMonth().beginningOfWeek();
+    calendarEnd = date.clone().endOfMonth().endOfWeek();
+    runningDate = calendarStart.clone();
+    currentWeek = [];
+    count = 0;
+    while (runningDate.isBetween(calendarStart, calendarEnd)) {
+      currentWeek.push(runningDate.clone().toObject());
+      runningDate.addDays(1);
+      count++;
+      if (count === 7) {
+        weeks.push(currentWeek);
+        currentWeek = [];
+        count = 0;
+      }
+    }
+    return weeks;
   }
 });
 

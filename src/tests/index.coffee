@@ -57,3 +57,8 @@ testArray = [
 
 console.log testArray.pluck("name","val")
 console.log testArray.pluck("name")
+
+console.log "Week Calendar:"
+console.log Date.create().toWeekCalendar()
+console.log "Month Calendar:"
+console.log Date.create().toMonthCalendar()
