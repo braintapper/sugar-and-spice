@@ -129,8 +129,6 @@ Sugar.Date.defineInstance({
 });
 
 // relative date with a few more rules for posting dates
-Sugar.Date.alias('toDateId', 'toDateSid');
-
 Sugar.Date.defineInstanceWithArguments({
   diffDays: function(date, args) {
     var end, start;

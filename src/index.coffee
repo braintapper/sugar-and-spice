@@ -89,7 +89,7 @@ Sugar.Date.defineInstance
     parseInt "#{date.format("%Y%m")}#{date.getQuarterNumber()}"
   posted: (date)->
     # relative date with a few more rules for posting dates
-Sugar.Date.alias('toDateId', 'toDateSid')
+
 
 Sugar.Date.defineInstanceWithArguments
   diffDays: (date,args)->
