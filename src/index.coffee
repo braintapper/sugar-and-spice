@@ -99,6 +99,39 @@ Sugar.Date.defineInstance
     dayOfWeek: date.getDay() + 1
     weekday: date.format("%A")
     weekdayAbbreviation: date.format("%a")
+  toWeekCalendar: (date)->
+    # todo: add additional info to the calendar
+    # * selected date
+    # * in selected dates' month
+    days = []
+    calendarStart = date.clone().beginningOfWeek()
+    calendarEnd = date.clone().endOfWeek()
+    runningDate = calendarStart.clone()
+    currentWeek = []
+    count = 0
+    range = Date.range(calendarStart, calendarEnd)
+
+    #while runningDate.isBetween(calendarStart, calendarEnd)
+    #  days.push runningDate.clone().toObject()
+    #  runningDate.addDays(1)
+    return range.every("day").map (d)->
+      return d.toObject()
+
+  toMonthCalendar: (date)->
+    # generate data for a month view
+    # calendars always start on sun and end on sat
+    # this will produce dates before and after the date's month where applicable
+    # because the most common usage will be in a standard calendar
+
+    # todo: this can be refactored using to WeekCalendar
+    # todo: add additional info to the calendar
+    # * selected date
+    # * in selected dates' month
+    calendarStart = date.clone().beginningOfMonth().beginningOfWeek()
+    calendarEnd = date.clone().endOfMonth().endOfWeek()
+    range = Date.range(calendarStart, calendarEnd)
+    return range.every("day").map (d)->
+      return d.toObject()
 
 
 
@@ -152,50 +185,17 @@ Sugar.Date.defineInstanceWithArguments
         return "before"
       else
         return "after"
-  toWeekCalendar: (date, args)->
-    # todo: add additional info to the calendar
-    # * selected date
-    # * in selected dates' month
-    days = []
-    calendarStart = date.clone().beginningOfWeek()
-    calendarEnd = date.clone().endOfWeek()
-    runningDate = calendarStart.clone()
-    currentWeek = []
-    count = 0
-    while runningDate.isBetween(calendarStart, calendarEnd)
-      days.push runningDate.clone().toObject()
-      runningDate.addDays(1)
-    return days
-
-  toMonthCalendar: (date, args)->
-    # generate data for a month view
-    # calendars always start on sun and end on sat
-    # this will produce dates before and after the date's month where applicable
-    # because the most common usage will be in a standard calendar
-    # this returns an array of weeks containing day objects
-    # todo: this can be refactored using to WeekCalendar
-    # todo: add additional info to the calendar
-    # * selected date
-    # * in selected dates' month
-    weeks = []
-    calendarStart = date.clone().beginningOfMonth().beginningOfWeek()
-    calendarEnd = date.clone().endOfMonth().endOfWeek()
 
 
-    runningDate = calendarStart.clone()
-    currentWeek = []
-    count = 0
-    while runningDate.isBetween(calendarStart, calendarEnd)
-      currentWeek.push runningDate.clone().toObject()
-      runningDate.addDays(1)
-      count++
-      if count == 7
-        weeks.push currentWeek
-        currentWeek = []
-        count = 0
-
-    return weeks
-
+  weekdaysSince: (date, args)->
+    calendarStart = date
+    calendarEnd = args.first()
+    range = Date.range(calendarStart, calendarEnd)
+    return range.every("day").sum (day)->
+      if day.getDay().isBetween(1,5)
+        return 1
+      else
+        return 0
 # String
 
 # Custom Pluralizations

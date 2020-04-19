@@ -62,3 +62,5 @@ console.log "Week Calendar:"
 console.log Date.create().toWeekCalendar()
 console.log "Month Calendar:"
 console.log Date.create().toMonthCalendar()
+console.log "Weekdays between apr 1 and apr 30"
+console.log Date.create("2020-04-01").weekdaysSince(Date.create("2020-03-01"))

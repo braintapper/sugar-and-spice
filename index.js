@@ -139,6 +139,43 @@ Sugar.Date.defineInstance({
       weekday: date.format("%A"),
       weekdayAbbreviation: date.format("%a")
     };
+  },
+  toWeekCalendar: function(date) {
+    var calendarEnd, calendarStart, count, currentWeek, days, range, runningDate;
+    // todo: add additional info to the calendar
+    // * selected date
+    // * in selected dates' month
+    days = [];
+    calendarStart = date.clone().beginningOfWeek();
+    calendarEnd = date.clone().endOfWeek();
+    runningDate = calendarStart.clone();
+    currentWeek = [];
+    count = 0;
+    range = Date.range(calendarStart, calendarEnd);
+    //while runningDate.isBetween(calendarStart, calendarEnd)
+    //  days.push runningDate.clone().toObject()
+    //  runningDate.addDays(1)
+    return range.every("day").map(function(d) {
+      return d.toObject();
+    });
+  },
+  toMonthCalendar: function(date) {
+    var calendarEnd, calendarStart, range;
+    // generate data for a month view
+    // calendars always start on sun and end on sat
+    // this will produce dates before and after the date's month where applicable
+    // because the most common usage will be in a standard calendar
+
+    // todo: this can be refactored using to WeekCalendar
+    // todo: add additional info to the calendar
+    // * selected date
+    // * in selected dates' month
+    calendarStart = date.clone().beginningOfMonth().beginningOfWeek();
+    calendarEnd = date.clone().endOfMonth().endOfWeek();
+    range = Date.range(calendarStart, calendarEnd);
+    return range.every("day").map(function(d) {
+      return d.toObject();
+    });
   }
 });
 
@@ -211,51 +248,18 @@ Sugar.Date.defineInstanceWithArguments({
       }
     }
   },
-  toWeekCalendar: function(date, args) {
-    var calendarEnd, calendarStart, count, currentWeek, days, runningDate;
-    // todo: add additional info to the calendar
-    // * selected date
-    // * in selected dates' month
-    days = [];
-    calendarStart = date.clone().beginningOfWeek();
-    calendarEnd = date.clone().endOfWeek();
-    runningDate = calendarStart.clone();
-    currentWeek = [];
-    count = 0;
-    while (runningDate.isBetween(calendarStart, calendarEnd)) {
-      days.push(runningDate.clone().toObject());
-      runningDate.addDays(1);
-    }
-    return days;
-  },
-  toMonthCalendar: function(date, args) {
-    var calendarEnd, calendarStart, count, currentWeek, runningDate, weeks;
-    // generate data for a month view
-    // calendars always start on sun and end on sat
-    // this will produce dates before and after the date's month where applicable
-    // because the most common usage will be in a standard calendar
-    // this returns an array of weeks containing day objects
-    // todo: this can be refactored using to WeekCalendar
-    // todo: add additional info to the calendar
-    // * selected date
-    // * in selected dates' month
-    weeks = [];
-    calendarStart = date.clone().beginningOfMonth().beginningOfWeek();
-    calendarEnd = date.clone().endOfMonth().endOfWeek();
-    runningDate = calendarStart.clone();
-    currentWeek = [];
-    count = 0;
-    while (runningDate.isBetween(calendarStart, calendarEnd)) {
-      currentWeek.push(runningDate.clone().toObject());
-      runningDate.addDays(1);
-      count++;
-      if (count === 7) {
-        weeks.push(currentWeek);
-        currentWeek = [];
-        count = 0;
+  weekdaysSince: function(date, args) {
+    var calendarEnd, calendarStart, range;
+    calendarStart = date;
+    calendarEnd = args.first();
+    range = Date.range(calendarStart, calendarEnd);
+    return range.every("day").sum(function(day) {
+      if (day.getDay().isBetween(1, 5)) {
+        return 1;
+      } else {
+        return 0;
       }
-    }
-    return weeks;
+    });
   }
 });
 
