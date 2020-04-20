@@ -166,13 +166,13 @@ Sugar.Date.defineInstanceWithArguments
     console.log "to be implemented"
     return true
   isSameDayAs: (date, args)->
-    return date.toDateId == args[0].toDateId
+    return date.toDateId() == args[0].toDateId()
   isSameWeekAs: (date, args)->
     return true
   isSameMonthAs: (date, args)->
-    return date.toMonthId == args[0].toMonthId
+    return date.toMonthId() == args[0].toMonthId()
   isSameQuarterAs: (date, args)->
-    return date.toQuarterId == args[0].toDQuarterId
+    return date.toQuarterId() == args[0].toDQuarterId()
   isSameYearAs: (date, args)->
     return date.getYear() == args[0].getYear()
   comparedTo: (date, args)->

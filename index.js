@@ -221,16 +221,16 @@ Sugar.Date.defineInstanceWithArguments({
     return true;
   },
   isSameDayAs: function(date, args) {
-    return date.toDateId === args[0].toDateId;
+    return date.toDateId() === args[0].toDateId();
   },
   isSameWeekAs: function(date, args) {
     return true;
   },
   isSameMonthAs: function(date, args) {
-    return date.toMonthId === args[0].toMonthId;
+    return date.toMonthId() === args[0].toMonthId();
   },
   isSameQuarterAs: function(date, args) {
-    return date.toQuarterId === args[0].toDQuarterId;
+    return date.toQuarterId() === args[0].toDQuarterId();
   },
   isSameYearAs: function(date, args) {
     return date.getYear() === args[0].getYear();
