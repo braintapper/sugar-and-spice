@@ -34,9 +34,9 @@ Sugar.Number.defineInstance
   sToMilliseconds: (num)->
     num * 1000
   mToMilliseconds: (num)->
-    num.sToMilliseconds * 60
+    num.sToMilliseconds() * 60
   hToMilliseconds: (num)->
-    num.mToMilliseconds * 60
+    num.mToMilliseconds() * 60
 
 Sugar.Number.defineInstanceWithArguments
   isBetween: (num, args)->
@@ -58,7 +58,7 @@ Sugar.Date.defineInstance
     week1 = new Date(date.getFullYear(), 0, 4)
     # Adjust to Thursday in week 1 and count number of weeks from date to week1.
     1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7)
-  getIsoWeekYear: (date) ->
+  getIsoYear: (date) ->
     date.setDate date.getDate() + 3 - ((date.getDay() + 6) % 7)
     date.getFullYear()
   getOrdinalWeek: (date)->
@@ -87,8 +87,11 @@ Sugar.Date.defineInstance
     parseInt date.format("%Y%m")
   toQuarterId: (date)->
     parseInt "#{date.format("%Y%m")}#{date.getQuarterNumber()}"
+  toTimestampId: (date)->
+    parseInt date.format("%Y%m%d%H%M%S")
   posted: (date)->
     # relative date with a few more rules for posting dates\
+
   toObject: (date)->
     date: date
     year: date.getYear()
@@ -152,6 +155,7 @@ Sugar.Date.defineInstanceWithArguments
     end = args.first().clone().beginningOfDay()
     end.monthsSince(start)
   diffQuarters: (date, args)->
+    # todo
     console.log "to be implemented"
     0
   diffYears: (date,args)->
@@ -159,22 +163,29 @@ Sugar.Date.defineInstanceWithArguments
     start = date.clone().beginningOfDay()
     end = args.first().clone().beginningOfDay()
     end.yearsSince(start)
-  dbDate: (date)->
-    # db friendly date
+  dbDate: (date)->   # db friendly date
     return date.format("%Y-%m-%d")
-  isSameHourAs: (date, args)->
-    console.log "to be implemented"
-    return true
   isSameDayAs: (date, args)->
     return date.toDateId() == args[0].toDateId()
-  isSameWeekAs: (date, args)->
-    return true
   isSameMonthAs: (date, args)->
     return date.toMonthId() == args[0].toMonthId()
   isSameQuarterAs: (date, args)->
     return date.toQuarterId() == args[0].toDQuarterId()
   isSameYearAs: (date, args)->
     return date.getYear() == args[0].getYear()
+  isSameOrdinalWeekAs: (date, args)->
+    if date.isSameYearAs(args.first())
+      return date.getOrdinalWeek() == args.first().getOrdinalWeek()
+    else
+      return false
+  isSameIsoWeekAs: (date, args)->
+    if date.getISOYear() == args.first().getISOYear()
+      return date.getISOWeek() == args.first().getISOWeek()
+    else
+      return false
+  isOnOrBefore: (date, args)->
+    return date.toDateId() <= args.first().toDateId()
+
   comparedTo: (date, args)->
     # return a string compared to arg[0]
     # can be used for class names for styling
@@ -186,7 +197,6 @@ Sugar.Date.defineInstanceWithArguments
       else
         return "after"
 
-
   weekdaysSince: (date, args)->
     calendarStart = date
     calendarEnd = args.first()
@@ -196,6 +206,26 @@ Sugar.Date.defineInstanceWithArguments
         return 1
       else
         return 0
+
+  relativeDateToNow: (date, args)-> # does not factor time
+    # this, next and last have some ambiguity and mixed use in English
+    today = Date.create()
+    if date.isToday()
+      "Today"
+    else if date.isTomorrow()
+      "Tomorrow"
+    else if date.isYesterday()
+      "Yesterday"
+    else if date.isBetween(today, today.endOfWeek()) # now until Saturday, just use weekday name
+      date.format("%A")
+    else if date.isBetween(today.addWeeks(1).beginningOfWeek(), today.addWeeks(1).endOfWeek()) # anything after saturday in the next week has "Next" prefix
+      date.format("Next %A")
+    else # just show the date
+      date.format("%a, %b {d}, %Y")
+
+
+
+
 # String
 
 # Custom Pluralizations

@@ -45,10 +45,10 @@ Sugar.Number.defineInstance({
     return num * 1000;
   },
   mToMilliseconds: function(num) {
-    return num.sToMilliseconds * 60;
+    return num.sToMilliseconds() * 60;
   },
   hToMilliseconds: function(num) {
-    return num.mToMilliseconds * 60;
+    return num.mToMilliseconds() * 60;
   }
 });
 
@@ -77,7 +77,7 @@ Sugar.Date.defineInstance({
     // Adjust to Thursday in week 1 and count number of weeks from date to week1.
     return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
   },
-  getIsoWeekYear: function(date) {
+  getIsoYear: function(date) {
     date.setDate(date.getDate() + 3 - ((date.getDay() + 6) % 7));
     return date.getFullYear();
   },
@@ -124,6 +124,9 @@ Sugar.Date.defineInstance({
   },
   toQuarterId: function(date) {
     return parseInt(`${date.format("%Y%m")}${date.getQuarterNumber()}`);
+  },
+  toTimestampId: function(date) {
+    return parseInt(date.format("%Y%m%d%H%M%S"));
   },
   posted: function(date) {},
   // relative date with a few more rules for posting dates\
@@ -202,6 +205,7 @@ Sugar.Date.defineInstanceWithArguments({
     return end.monthsSince(start);
   },
   diffQuarters: function(date, args) {
+    // todo
     console.log("to be implemented");
     return 0;
   },
@@ -212,19 +216,11 @@ Sugar.Date.defineInstanceWithArguments({
     end = args.first().clone().beginningOfDay();
     return end.yearsSince(start);
   },
-  dbDate: function(date) {
-    // db friendly date
+  dbDate: function(date) { // db friendly date
     return date.format("%Y-%m-%d");
-  },
-  isSameHourAs: function(date, args) {
-    console.log("to be implemented");
-    return true;
   },
   isSameDayAs: function(date, args) {
     return date.toDateId() === args[0].toDateId();
-  },
-  isSameWeekAs: function(date, args) {
-    return true;
   },
   isSameMonthAs: function(date, args) {
     return date.toMonthId() === args[0].toMonthId();
@@ -234,6 +230,23 @@ Sugar.Date.defineInstanceWithArguments({
   },
   isSameYearAs: function(date, args) {
     return date.getYear() === args[0].getYear();
+  },
+  isSameOrdinalWeekAs: function(date, args) {
+    if (date.isSameYearAs(args.first())) {
+      return date.getOrdinalWeek() === args.first().getOrdinalWeek();
+    } else {
+      return false;
+    }
+  },
+  isSameIsoWeekAs: function(date, args) {
+    if (date.getISOYear() === args.first().getISOYear()) {
+      return date.getISOWeek() === args.first().getISOWeek();
+    } else {
+      return false;
+    }
+  },
+  isOnOrBefore: function(date, args) {
+    return date.toDateId() <= args.first().toDateId();
   },
   comparedTo: function(date, args) {
     // return a string compared to arg[0]
@@ -260,6 +273,24 @@ Sugar.Date.defineInstanceWithArguments({
         return 0;
       }
     });
+  },
+  relativeDateToNow: function(date, args) { // does not factor time
+    var today;
+    // this, next and last have some ambiguity and mixed use in English
+    today = Date.create();
+    if (date.isToday()) {
+      return "Today";
+    } else if (date.isTomorrow()) {
+      return "Tomorrow";
+    } else if (date.isYesterday()) {
+      return "Yesterday";
+    } else if (date.isBetween(today, today.endOfWeek())) { // now until Saturday, just use weekday name
+      return date.format("%A");
+    } else if (date.isBetween(today.addWeeks(1).beginningOfWeek(), today.addWeeks(1).endOfWeek())) { // anything after saturday in the next week has "Next" prefix
+      return date.format("Next %A"); // just show the date
+    } else {
+      return date.format("%a, %b {d}, %Y");
+    }
   }
 });
 
