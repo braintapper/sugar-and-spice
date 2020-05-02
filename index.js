@@ -4,8 +4,6 @@ Sugar = require("sugar");
 
 require('sugar-inflections');
 
-require('sugar-language');
-
 // Array
 Sugar.Array.defineInstance({
   toName: function(array) {

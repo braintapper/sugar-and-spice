@@ -1,6 +1,6 @@
 {
   "name": "sugar-and-spice",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "sugar": "^2.0.6",
-    "sugar-inflections": "^2.0.6",
-    "sugar-language": "^2.0.6"
+    "sugar-inflections": "^2.0.6"
   }
 }
