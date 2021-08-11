@@ -28,7 +28,7 @@ Sugar.Array.defineInstanceWithArguments({
 // Number
 Sugar.Number.defineInstance({
   msToSeconds: function(num) {
-    return num * 1000;
+    return num / 1000;
   },
   msToMinutes: function(num) {
     return num.msToSeconds() / 60;
@@ -95,24 +95,7 @@ Sugar.Date.defineInstance({
     return date.getMonth() + 1;
   },
   getQuarterNumber: function(date) {
-    switch (parseInt(date.format("%m"))) {
-      case 1:
-      case 2:
-      case 3:
-        return 1;
-      case 4:
-      case 5:
-      case 6:
-        return 2;
-      case 7:
-      case 8:
-      case 9:
-        return 3;
-      case 10:
-      case 11:
-      case 12:
-        return 4;
-    }
+    return Math.ceil(parseInt(date.format("%m")) / 3);
   },
   toDateId: function(date) {
     return parseInt(date.format("%Y%m%d"));
@@ -177,6 +160,9 @@ Sugar.Date.defineInstance({
     return range.every("day").map(function(d) {
       return d.toObject();
     });
+  },
+  dbDate: function(date) { // db friendly date
+    return date.format("%Y-%m-%d");
   }
 });
 
@@ -213,9 +199,6 @@ Sugar.Date.defineInstanceWithArguments({
     start = date.clone().beginningOfDay();
     end = args.first().clone().beginningOfDay();
     return end.yearsSince(start);
-  },
-  dbDate: function(date) { // db friendly date
-    return date.format("%Y-%m-%d");
   },
   isSameDayAs: function(date, args) {
     return date.toDateId() === args[0].toDateId();

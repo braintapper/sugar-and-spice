@@ -24,7 +24,7 @@ Sugar.Array.defineInstanceWithArguments
 
 Sugar.Number.defineInstance
   msToSeconds: (num)->
-    return num * 1000
+    return num / 1000
   msToMinutes: (num)->
     num.msToSeconds() / 60
   msToHours: (num)->
@@ -72,15 +72,7 @@ Sugar.Date.defineInstance
   getMonthNumber: (date)->
     date.getMonth() + 1
   getQuarterNumber: (date)->
-    switch parseInt(date.format("%m"))
-      when 1,2,3
-        1
-      when 4,5,6
-        2
-      when 7,8,9
-        3
-      when 10,11,12
-        4
+    Math.ceil parseInt(date.format("%m")) / 3
   toDateId: (date)->
     parseInt date.format("%Y%m%d")
   toMonthId: (date)->
@@ -135,7 +127,8 @@ Sugar.Date.defineInstance
     range = Date.range(calendarStart, calendarEnd)
     return range.every("day").map (d)->
       return d.toObject()
-
+  dbDate: (date)->   # db friendly date
+    return date.format("%Y-%m-%d")
 
 
 Sugar.Date.defineInstanceWithArguments
@@ -163,8 +156,7 @@ Sugar.Date.defineInstanceWithArguments
     start = date.clone().beginningOfDay()
     end = args.first().clone().beginningOfDay()
     end.yearsSince(start)
-  dbDate: (date)->   # db friendly date
-    return date.format("%Y-%m-%d")
+
   isSameDayAs: (date, args)->
     return date.toDateId() == args[0].toDateId()
   isSameMonthAs: (date, args)->
