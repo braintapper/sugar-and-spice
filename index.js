@@ -276,6 +276,13 @@ Sugar.Date.defineInstanceWithArguments({
 });
 
 // String
+Sugar.String.defineInstance({
+  toBoolean: function(string) {
+    var regex;
+    regex = /^\s*(true|1|on)\s*$/i;
+    return regex.test(string);
+  }
+});
 
 // Custom Pluralizations
 Sugar.String.addPlural("is", "are");
